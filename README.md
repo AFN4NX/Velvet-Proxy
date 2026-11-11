@@ -1,123 +1,634 @@
-# Velvet Proxy v1.3.3 (Chrome)
+# Velvet Proxy
 
-A lightweight, local Chrome/Chromium proxy manager. Manifest V3. No accounts, remote code, ads, analytics, or cloud sync.
+**A modern, lightweight proxy manager for Chromium-based browsers.**
 
-## IMPORTANT: Updating from v1.0 without losing your profiles
+Manage multiple proxy connections, verify their availability, identify public IP locations, and switch between profiles through a clean and intuitive browser extension.
 
-**Do not remove the old installed extension.** Chrome associates unpacked extension data with that installed extension's identity and directory.
+Velvet Proxy brings proxy management into one organized workspace without requiring a separate desktop application, user account, or cloud dashboard.
 
-1. Keep the original folder selected in `chrome://extensions` when you first loaded v1.0.
-2. Download and extract the latest Velvet Proxy ZIP. Open the extracted `VelvetProxy` folder.
-3. Copy all files and folders from the extracted `VelvetProxy` folder into **your original extension folder**, replacing the old versions. (Keep the original folder path unchanged.)
-4. Open `chrome://extensions`, locate Velvet Proxy, and click **Reload**.
-5. Reopen the extension. Your previously saved profiles should appear because the existing `velvet_proxy_state_v1` storage key is retained.
+**Version:** 1.3.3  
+**Platform:** Google Chrome and compatible Chromium browsers  
+**Extension architecture:** Manifest V3  
+**Built with:** JavaScript, HTML, and CSS
 
-If you prefer a completely separate installation, you can use **Load unpacked** on the new extracted folder. This is a separate extension identity and may start without your old profiles. Before switching, export a v1.0 JSON backup **including passwords**, then import it in the new installation. Keep that backup private because it is not encrypted. Imported proxies are revalidated.
+---
 
-## Desktop and touch layouts
+## Overview
 
-The popup uses a compact desktop layout and adapts to narrower screens. Touch
-controls have larger targets, with profile actions below the details. The
-saved list initially renders 32 profiles. Use **Show more** or search the
-entire collection, including profiles that have not been rendered yet.
+Velvet Proxy is a browser extension designed to make everyday proxy management simple and efficient.
 
-The mobile layout requires an extension-capable browser with Manifest V3 and
-the Chrome proxy and authentication APIs. Chrome for Android's **Add to
-Desktop** installs extensions on a computer, so it cannot run this ZIP on the phone.
+Instead of repeatedly changing your browser's network settings or manually entering proxy credentials, you can save multiple proxy configurations and manage them directly from the extension popup.
 
-## v1.3.3: service worker startup fix
+Whether you use datacenter proxies, residential proxies, or private authenticated proxy endpoints, Velvet Proxy provides a convenient interface for organizing, testing, and switching between your connections.
 
-* Fixes `Uncaught TypeError: chrome.storage.local.setAccessLevel is not a function` during startup on browsers that do not expose this optional method.
-* Calls the storage access-level restriction only when the API exists. Any failure is nonfatal. There are no content scripts in the extension; this change does not alter proxy routing or stored proxy profiles.
-* Storage key `velvet_proxy_state_v1` is unchanged. You must **replace the files in your previously installed unpacked extension folder and Reload**, not remove it, to retain saved profiles.
-* Confirm the actual service worker is registered in `chrome://extensions`. If old errors linger, clear the error list after reloading and check whether any new ones appear.
+The extension focuses on three core principles:
 
-## v1.3.1: proxy checking hang fix
+- **Simplicity:** Manage proxies without complicated configuration.
+- **Reliability:** Verify proxy connections and distinguish successful checks from inconclusive results.
+- **Privacy:** Keep saved profiles locally, without requiring an account or cloud synchronization.
 
-* Adds strict per-service timeouts to direct-IP checks (4 seconds), proxied-IP checks (6 seconds) and optional geolocation (3.5 seconds), including response-body parsing. Unlike AbortController alone, the worker now continues even if an aborted proxy handshake fails to settle.
-* Adds a 38-second popup-side watchdog for checking commands. Add Proxy can no longer remain stuck on "Checking proxy…" forever: a timeout becomes a visible error and the button is re-enabled.
-* Maintains existing conservative LIVE/FAILED/UNVERIFIED rules, local-only credential storage, and automatic restoration of Chrome's previous proxy configuration after each probe.
-* No changes to CSS, SVG visuals, parser, proxy profile schema or saved storage key. The verification timeout is shorter than before, so extremely slow proxies may fail verification; a timeout is not proof a proxy is permanently dead.
+## Key Features
 
-## v1.3.0: visual-only refresh
+### 1. Multi-Proxy Management
 
-**In v1.3.0, proxy logic was unchanged** from v1.2.1. In v1.3.1, only request deadlines and the popup watchdog were corrected. Storage keys and permissions remain unchanged.
+Save and organize multiple proxy profiles within a single extension.
 
-* Refined midnight-blue, deep-teal and soft mint palette with better contrast and calmer accents.
-* More balanced connection card with an animated SVG connection radar and a softly animated logo.
-* Radar animation activates only while Chrome confirms a proxy is connected. Off/system state is visually quiet.
-* More compact, structured saved-proxy cards. Location, exit IP and last-verified details have clearer hierarchy.
-* Improved buttons, search field, confirmation dialogs, editor and bulk-check progress layout.
-* Animation automatically turns off when the operating system's **Reduce motion** preference is enabled.
-* Existing toolbar icons, active/off toggle behavior, no-location-badge policy, import/export and connection checks are retained.
+Each proxy profile can include:
 
-## v1.2.1 toggle fix
+- Custom profile name
+- Proxy hostname or IP address
+- Port number
+- Connection protocol
+- Username and password, where supported
+- Optional bypass domains
+- Last verified public IP and approximate location
 
-* Fixed the main ON/OFF switch staying disabled after turning a connected proxy OFF.
-* The selected profile is preserved when off, so you can turn it ON again from the same main switch without pressing USE.
-* Action controls are refreshed after asynchronous commands finish, even if the command fails.
+Quickly search, edit, select, or delete your saved connections.
 
-## v1.2 interface refinements
+### 2. Multiple Proxy Protocols
 
-* Current Connection is the only place showing the Check IP result. Success shows LIVE, approximate location, observed public IP and latency; failed/unverified results also appear in the same card. No separate result panel underneath.
-* Removed the toolbar country/city badge setting. Toolbar displays distinct connected/off icons, with the status confirmed against Chrome proxy ownership.
-* Removed the format example card from the bulk import dialog. Parsing support for all listed formats is unchanged.
+Velvet Proxy supports the following proxy configurations:
 
-## Features carried forward from v1.1
+| Protocol | Supported | Username/Password |
+|---|---|---|
+| HTTP Proxy | Yes | Yes |
+| HTTPS Proxy (TLS) | Yes | Yes |
+| SOCKS4 | Yes | No |
+| SOCKS5 | Yes | No |
 
-1. **Verify before save:** Add or edit performs a real public-IP request through the candidate proxy before writing it to saved profiles. Only a confirmed LIVE result is accepted. Failed and unverified proxies are NOT saved.
-2. **Premium delete confirmation:** In-extension modal replaces the Chrome `confirm()` popup.
-3. **IP and location:** Verified profiles display the observed public IP, estimated city and country (when available), measured request time, and last checked date. Connecting a profile automatically rechecks its IP.
-4. **Toolbar connection icon:** Clean mint icon for an active Chrome proxy, muted slate icon for proxy off/overridden. No country/city badges or mode setting.
-5. **Bulk proxy checker:** Paste TXT lines or import a JSON file, press **Check proxies**, view per-proxy LIVE / FAILED / UNVERIFIED results and counters, then press **Add LIVE** to import only the verified entries. Duplicates are skipped. Stop after the current check is available.
+**HTTP Proxy:** Connects to an HTTP proxy server and can access HTTPS websites through the CONNECT method.
 
-## How checking works
+**HTTPS Proxy (TLS):** Establishes an encrypted TLS connection between the browser and the proxy server when supported by the provider.
 
-The checker temporarily updates the *browser-wide* proxy settings, performs HTTPS requests to check the public IP, compares it to the non-extension network's public IP, and restores the saved active proxy (or underlying Chrome settings) after every candidate. During checking, other tabs can briefly use the candidate proxy or the non-extension network, and their requests could be interrupted. Prefer to check while not doing sensitive browsing or downloads. **Keep the popup open until checking is complete.**
+**SOCKS4 / SOCKS5:** Supports compatible SOCKS endpoints. Chrome does not provide username/password authentication for SOCKS proxies through its standard proxy configuration API.
 
-* **LIVE:** A public-IP check succeeded via the candidate configuration and returned an IP different from the baseline.
-* **FAILED:** The IP verification services could not be accessed. Often means an unusable proxy, incorrect protocol, authentication failure, or timeout, but some otherwise working proxies block these test services.
-* **UNVERIFIED:** A reachable IP service returned the same exit IP as the baseline, or a reliable baseline was unavailable. This does **not** necessarily mean the proxy is dead. The conservative policy does not import it.
-* Public-IP checks are not a guarantee of security, anonymity, DNS safety, or access to every website.
-* Requests are made only when you add/edit, manually check, switch/enable, or run bulk validation. No background periodic scanning.
+For authenticated SOCKS connections, use an IP-allowlisted endpoint or ask your provider for HTTP/HTTPS proxy access.
 
-For reliability, the IP echo checks use `https://api.ipify.org?format=json` with a fallback to `https://api.myip.com`; `https://ipwho.is/<observed-ip>` provides approximate geolocation. Your apparent IP address is shared with these services for verification and lookup. **Credentials are not included in the API URLs**; Chrome submits them to the configured HTTP/HTTPS proxy only when the proxy issues an authentication challenge. Provider geolocation can be approximate or empty, and the optional service can have limits or outages. Do not interpret city as GPS location.
+### 3. One-Click Proxy Switching
 
-## Supported formats
+Switch between saved proxy profiles without manually editing browser network settings.
 
-One proxy per line, with protocol chooser for lines without scheme:
+Velvet Proxy provides:
+
+- Quick proxy selection
+- Connection ON/OFF control
+- Active connection information
+- Automatic application of the selected proxy configuration
+- Restoration of browser proxy control when the extension is turned off
+
+The extension also uses different toolbar icons for connected and disconnected states.
+
+**Note:** Chrome proxy settings are browser-wide. Other proxy extensions, browser policies, VPN features, or system configurations may interfere with proxy control.
+
+### 4. Live Proxy Verification
+
+Velvet Proxy includes a built-in verification system to help determine whether a proxy is working.
+
+When a proxy is checked, the extension attempts to route an IP verification request through the selected proxy and inspect the observed public IP.
+
+The verification process generally involves:
+
+1. Determining the direct-connection public IP when available.
+2. Applying the candidate proxy configuration.
+3. Sending a request to a public IP verification service.
+4. Inspecting the returned public IP.
+5. Comparing the result against the direct-connection IP.
+6. Reporting the verification result.
+7. Restoring the previous proxy configuration when appropriate.
+
+A different observed public IP is evidence that the verification request used a different network exit. It does not independently prove that every destination will work through the proxy or that the connection is anonymous.
+
+#### Verification Statuses
+
+| Status | Meaning |
+|---|---|
+| LIVE | The proxy passed the configured public IP verification checks |
+| FAILED | The verification attempt encountered a connection or other test failure |
+| UNVERIFIED | The available response was insufficient to confirm the proxy |
+| AUTH_FAILED | Proxy authentication failed or was rejected |
+| TIMEOUT | The verification attempt exceeded its allowed time |
+
+A failed verification does not always mean the proxy is permanently offline.
+
+Temporary network problems, provider restrictions, authentication issues, blocked IP-checking services, and response delays can affect the results.
+
+### 5. Bulk Proxy Checker
+
+Check multiple proxies from one interface instead of testing them individually.
+
+The bulk checker supports:
+
+- Multiple proxy entries
+- Text-based proxy lists
+- Sequential proxy verification
+- Verification retry handling
+- LIVE, FAILED, and UNVERIFIED results
+- Progress indicators
+- Importing verified LIVE proxies
+
+The checker attempts to reduce false-negative results caused by temporary response failures and proxy switching delays.
+
+**Important:** Bulk verification temporarily changes the browser's proxy configuration while checking candidate endpoints. Avoid sensitive browsing during a bulk check.
+
+Only proxies that satisfy the LIVE verification criteria are eligible for LIVE-only import.
+
+### 6. Flexible Proxy Import
+
+Velvet Proxy accepts common proxy formats.
+
+Supported examples:
 
 ```text
-proxy.example.com:8080
-proxy.example.com:8080:user:password
-user:password@proxy.example.com:8080
-http://user:password@proxy.example.com:8080
-https://proxy.example.com:443
-socks5://proxy.example.com:1080
+192.0.2.10:8080
+192.0.2.10:8080:username:password
+username:password@192.0.2.10:8080
+http://username:password@192.0.2.10:8080
+https://username:password@192.0.2.10:8443
+socks5://192.0.2.10:1080
 ```
 
-Also accepts v1 JSON backups. Max 1,000 profiles in the library or check list, and 2 MB per uploaded TXT/JSON file. Bulk checks run **sequentially**, because Chrome has a single effective proxy setting. Checking hundreds of unresponsive proxies can take a long time, especially with fallback echo services. Stopping stops after the current candidate. Progress is kept in the open popup, not in a background job.
+The addresses above are documentation examples, not working proxy servers.
 
-## Security and limitations
+For entries without an explicit protocol, select the correct default protocol in the import interface.
 
-* **HTTP proxy** usually supports browsing HTTPS websites using CONNECT. **HTTPS proxy (TLS)** means TLS between Chrome and the proxy itself; select it only if the provider explicitly offers that endpoint.
-* Chrome's built-in proxy engine does not accept SOCKS4/SOCKS5 username/password authentication. IP-allowlisted SOCKS can work.
-* A proxy setting can be blocked by enterprise policy or another extension. The manager detects conflicts where Chrome reports them.
-* Proxy credentials are saved only in Chrome's local extension storage, without additional encryption by this extension. Restrict local device access. Exporting backups with passwords writes the credentials in cleartext.
-* Other applications, Chrome WebRTC behavior, browser-specific DNS features, and privacy settings may bypass ordinary browser proxy settings.
-* No live connection to a user-supplied proxy was available during development. JavaScript parser tests, mocked Chrome API state/auth/verification tests, and rendered popup interaction tests were completed; a real proxy is required to confirm production behavior in your Chrome setup.
+The extension supports importing proxy data from pasted text and compatible local files.
+
+### 7. Proxy Profile Export
+
+Back up your saved proxy profiles using the built-in export feature.
+
+Export options include JSON profile data and optional password inclusion.
+
+Passwords should only be included when transferring profiles to a trusted environment.
+
+**Warning:** Exported JSON files containing credentials are not encrypted. Keep backups private and never commit them to a public repository.
+
+### 8. Public IP and Geolocation
+
+Velvet Proxy can display information about an observed proxy exit IP.
+
+Information may include:
+
+- Public IP address
+- Country name
+- Country code
+- City
+- Region, when available
+- Connection verification latency
+
+Geolocation information is obtained through the `ipwho.is` service.
+
+IP-based location results are approximate and may not reflect the actual physical location of the proxy server.
+
+### 9. Dynamic SVG Country Flags
+
+Country flags are retrieved using the geolocation API response rather than relying on a large collection of bundled flag images.
+
+Example API response:
+
+```json
+{
+  "flag": {
+    "img": "https://cdn.ipwhois.io/flags/bd.svg",
+    "emoji": "🇧🇩"
+  }
+}
+```
+
+The extension uses the flag image URL to display the corresponding country flag.
+
+If the SVG image cannot be loaded, a country emoji may be used as a fallback.
+
+**Benefits:**
+
+- Lightweight asset management
+- Consistent country identification
+- SVG-based flag rendering
+- Reduced dependency on bundled PNG flag collections
+
+Loading SVG flags from the external CDN requires network access to the flag provider.
+
+### 10. Modern User Interface
+
+Velvet Proxy includes a compact interface designed for everyday use.
+
+Interface elements include:
+
+- Connection status indicators
+- Active proxy details
+- Searchable proxy library
+- Custom profile editor
+- Dedicated import/export dialogs
+- Confirmation dialogs for destructive actions
+- Animated SVG interface elements
+- Connected and disconnected toolbar icons
+
+The interface is built using standard browser technologies without requiring a separate desktop application.
+
+---
+
+## Installation
+
+Velvet Proxy can be installed manually as an unpacked Chromium extension.
+
+### Google Chrome
+
+1. Download the latest ZIP package from the repository's **Releases** section.
+2. Extract the downloaded ZIP file.
+3. Open Google Chrome.
+4. Navigate to `chrome://extensions`.
+5. Enable **Developer mode**.
+6. Click **Load unpacked**.
+7. Select the extracted folder containing `manifest.json`.
+8. Pin Velvet Proxy to your browser toolbar.
+
+The extension is now ready to configure.
+
+### Microsoft Edge
+
+1. Open `edge://extensions`.
+2. Enable Developer mode.
+3. Select **Load unpacked**.
+4. Choose the extracted extension folder.
+
+### Brave Browser
+
+1. Open `brave://extensions`.
+2. Enable Developer mode.
+3. Select **Load unpacked**.
+4. Choose the extracted extension folder.
+
+**Compatibility note:** Brave and Edge use Chromium extension APIs, but behavior can differ because of browser-specific settings. Test proxy authentication and switching on your browser.
+
+### Mozilla Firefox
+
+Firefox uses different proxy management APIs. The Chrome extension package is not intended to be installed directly in Firefox.
+
+Use a separately maintained Firefox-compatible build when available.
+
+---
+
+## Getting Started
+
+### Add Your First Proxy
+
+1. Open Velvet Proxy from the browser toolbar.
+2. Click **Add Proxy**.
+3. Enter a profile name.
+4. Select the proxy protocol.
+5. Enter the proxy host and port.
+6. Enter credentials if required and supported.
+7. Click **Verify & Save**.
+
+The extension will attempt to verify the connection before accepting the proxy.
+
+### Connect to a Saved Proxy
+
+1. Open the extension.
+2. Find the desired proxy in your saved list.
+3. Click **USE** to select it.
+4. Confirm the active connection details.
+5. Optionally run **Check IP** to verify the observed exit IP.
+
+### Disconnect a Proxy
+
+Use the connection toggle to disable the extension's proxy configuration.
+
+Chrome will return to its remaining proxy settings, which may be controlled by the operating system, another extension, or an administrative policy.
+
+### Import Multiple Proxies
+
+1. Click the Import button.
+2. Choose the appropriate default protocol.
+3. Paste your proxy list or choose a supported file.
+4. Click **Check Proxies**.
+5. Review the verification results.
+6. Select **Add LIVE** to import verified entries.
+
+### Export Saved Proxies
+
+1. Click the Export button.
+2. Choose whether passwords should be included.
+3. Download the JSON backup.
+4. Store the file in a private, trusted location.
+
+---
+
+## How Proxy Verification Works
+
+Velvet Proxy uses a public IP verification workflow.
+
+A basic connection check follows this sequence:
+
+```text
+User selects a proxy
+        |
+        v
+Extension applies proxy settings
+        |
+        v
+IP verification request
+        |
+        v
+Public IP response received?
+        |
+     Yes / No
+        |
+        v
+Compare against direct connection
+        |
+        v
+LIVE / FAILED / UNVERIFIED
+        |
+        v
+Display result and restore settings
+when appropriate
+```
+
+The verification service helps identify the public IP observed for a test request.
+
+Geolocation is handled separately using `ipwho.is`.
+
+### Verification Limitations
+
+A proxy may pass an IP test but still encounter restrictions on other websites.
+
+Likewise, a working proxy may fail an individual verification because the testing endpoint is blocked or temporarily unreachable.
+
+For this reason, verification results should be treated as diagnostic information rather than a permanent guarantee of availability.
+
+---
+
+## Privacy and Data Handling
+
+Velvet Proxy is designed to work without account registration or cloud synchronization.
+
+### Local Storage
+
+Saved proxy profiles, preferences, and credentials are stored using browser extension storage.
+
+The extension does not provide an additional encryption layer for stored proxy credentials.
+
+Anyone with sufficient access to the browser profile or local system may be able to access this information.
+
+### External Services
+
+The extension may communicate with external services when performing verification or geolocation operations.
+
+| Service | Purpose |
+|---|---|
+| `api.ipify.org` | Public IP verification |
+| `ipwho.is` | IP geolocation |
+| `cdn.ipwhois.io` | Country flag SVG images |
+
+Additional IP verification endpoints may be used by the bundled verification implementation.
+
+External services may observe the IP addresses and request metadata associated with requests they receive.
+
+### No Cloud Account
+
+Velvet Proxy does not require users to register an account to store or manage profiles.
+
+The extension does not include a built-in cloud synchronization system.
+
+### Security Recommendations
+
+- Use proxy services from trusted providers.
+- Avoid sharing files containing proxy credentials.
+- Do not commit real proxy credentials to GitHub.
+- Protect your local browser profile.
+- Update the extension from trusted release sources.
+- Use HTTPS websites where possible.
+- Do not treat proxy routing as a complete anonymity or privacy solution.
+
+---
+
+## Browser Permissions
+
+Velvet Proxy uses browser permissions to operate its proxy management features.
+
+| Permission | Purpose |
+|---|---|
+| `proxy` | Configure browser proxy routing |
+| `storage` | Store local proxy profiles and settings |
+| `webRequest` | Observe relevant network requests |
+| `webRequestAuthProvider` | Respond to supported proxy authentication challenges |
+| Host access | Access required verification and geolocation endpoints |
+
+Some permissions may provide broad technical access. Review the extension's `manifest.json` for the exact permission declarations in your installed version.
+
+---
 
 ## Troubleshooting
 
-* **Previously saved proxies missing?** You probably loaded the new folder as a second extension. Restore to the old folder and click Reload; do not uninstall the original extension.
-* **A working proxy reports UNVERIFIED?** Its exit IP may match the baseline, a VPN or other proxy may be active, or the direct baseline request failed. This is conservative by design.
-* **FAILED to fetch?** Check protocol (HTTP vs HTTP with TLS), address, port, username, password, browser proxy ownership and whether the proxy provider blocks ipify and myip. The result is not proof of permanent outage.
-* **Location unknown?** The geolocation lookup failed or has no data for that IP. Verified IP/routing can still work.
-* **Bulk check stops early?** Keep the popup open until complete. Browser proxy settings are global; the checker must verify sequentially. Reload after a transient connection failure or broken proxy ownership.
+### Proxy shows FAILED but works elsewhere
 
-### Flag display update (v1.3.3)
+Possible causes include:
 
-- Flag SVGs are loaded from `ipwho.is` response `flag.img`, restricted to HTTPS URLs under `cdn.ipwhois.io/flags/xx.svg`. No packaged PNG flags are used.
-- Country flag emoji is shown for previously saved profiles without a `flag.img` value, and if the SVG download fails. Re-run **Check IP** to obtain a fresh API flag URL.
-- The API response flag URL and emoji are stored locally with the verified IP. No proxy verification or switching behavior was modified.
-- External flag assets require a browser network connection and may pass through your configured proxy.
+- Temporary provider instability
+- Incorrect selected protocol
+- Authentication errors
+- Blocked verification endpoints
+- Network timeouts
+- Proxy switching delays
+
+Try checking the proxy individually and confirm whether the provider requires HTTP or HTTPS (TLS).
+
+### Proxy shows UNVERIFIED
+
+UNVERIFIED means the extension could not obtain sufficient evidence to confirm the proxy.
+
+It does not automatically mean the proxy is permanently dead.
+
+Check the network connection and retry verification.
+
+### Proxy authentication fails
+
+Confirm the username, password, hostname, and port.
+
+If using SOCKS4 or SOCKS5 with username/password credentials, switch to a supported HTTP/HTTPS endpoint or use provider-supported IP authentication.
+
+### Proxy does not connect after switching
+
+Check whether another extension, VPN, browser policy, or system proxy configuration is interfering.
+
+Disable conflicting proxy controllers and retry.
+
+### Public IP does not change
+
+Verify that the proxy is selected and active.
+
+A proxy may also share the same public IP as another network path, and some network traffic may not follow the browser proxy configuration.
+
+### Country flag is missing
+
+Flag images require access to the SVG flag CDN.
+
+If the CDN is unavailable or the flag URL is missing, the interface may display a country emoji instead.
+
+Recheck the proxy to refresh available geolocation information.
+
+### Bulk results differ from single checks
+
+Temporary network conditions and proxy response times can affect verification.
+
+Confirm that the bulk import protocol matches the single profile protocol.
+
+Retry inconclusive results individually when necessary.
+
+### Extension fails to load
+
+1. Open `chrome://extensions`.
+2. Enable Developer mode.
+3. Locate Velvet Proxy.
+4. Inspect the extension error details.
+5. Confirm that all required files were extracted.
+6. Reload the extension.
+
+If necessary, review the background service worker console for startup errors.
+
+---
+
+## Project Structure
+
+The extension is organized around the following core components:
+
+```text
+VelvetProxy/
+├── manifest.json
+├── background.js
+├── popup.html
+├── popup.js
+├── parser.js
+├── styles.css
+├── icons/
+├── README.md
+└── Additional UI assets
+```
+
+### Main Components
+
+| File | Responsibility |
+|---|---|
+| `manifest.json` | Browser extension metadata and permissions |
+| `background.js` | Proxy configuration, authentication, and verification workflows |
+| `popup.html` | Extension popup structure |
+| `popup.js` | User interface interactions and profile management |
+| `parser.js` | Parsing and validating proxy input formats |
+| `styles.css` | Interface styling, layout, and animations |
+| `icons/` | Browser toolbar and extension icons |
+
+Additional assets may vary between releases.
+
+---
+
+## What's New in v1.3.3
+
+This release focuses on improved proxy management reliability and dynamic country flag support.
+
+### Highlights
+
+**Dynamic country flags**
+
+- Uses `ipwho.is` country flag image URLs.
+- Supports CDN-hosted SVG country flags.
+- Provides emoji fallback when SVG loading is unavailable.
+- Removes the need for a large local flag image collection.
+
+**Proxy verification reliability**
+
+- Retains the improved bulk verification workflow from the updated source.
+- Supports verification retries for temporary failures.
+- Distinguishes inconclusive results from verified LIVE connections.
+- Preserves the existing LIVE-only import behavior.
+
+**Existing functionality retained**
+
+- HTTP/HTTPS proxy authentication
+- SOCKS proxy support
+- Single and bulk proxy checking
+- Profile editing and deletion
+- Import/export
+- Connection toggling
+- IP and location details
+- Premium popup interface
+
+Refer to GitHub Releases for downloadable packages and release-specific changes.
+
+---
+
+## Development
+
+Velvet Proxy is built with standard browser extension technologies:
+
+- JavaScript
+- HTML
+- CSS
+- Chrome Extension APIs
+- Manifest V3
+
+No separate desktop application is required.
+
+To inspect or modify the extension locally:
+
+1. Clone or download the source repository.
+2. Open the project folder in a code editor.
+3. Make the required changes.
+4. Reload the unpacked extension using `chrome://extensions`.
+5. Verify proxy behavior using authorized proxy endpoints.
+
+Changes to proxy routing, authentication, or bulk verification should be tested carefully because these systems affect browser-wide network configuration.
+
+---
+
+## Contributing
+
+Bug reports, reproducible test cases, documentation improvements, and enhancement suggestions are welcome.
+
+Before reporting an issue:
+
+1. Confirm that you are using the latest published version.
+2. Check whether the problem occurs with a single proxy or during bulk verification.
+3. Record the browser name and version.
+4. Include relevant error messages.
+5. Remove proxy passwords, authentication tokens, and other sensitive information from screenshots and logs.
+
+Open a GitHub Issue with the relevant information.
+
+For code contributions, use a separate branch and submit a pull request describing the proposed changes and testing performed.
+
+---
+
+## Known Limitations
+
+- Proxy settings are browser-wide and may conflict with other network tools.
+- SOCKS username/password authentication is not supported through Chrome's standard proxy API.
+- IP geolocation is approximate.
+- Public IP verification does not guarantee complete proxy availability.
+- Verification depends on external network services.
+- Remote SVG flags require access to the flag CDN.
+- Stored proxy credentials are not additionally encrypted by the extension.
+- Proxy routing does not guarantee that WebRTC or all browser-related traffic uses the proxy.
+- Firefox requires a separate compatible implementation.
+
+---
+
+## License
+
+A software license has not yet been specified for this repository.
+
+Public availability of source code does not automatically grant permission to redistribute, modify, or commercially reuse the software.
+
+Refer to the repository's license file if one is added in the future.
+
+---
+
+## Final Notes
+
+Velvet Proxy is intended to provide a simple, organized, and convenient experience for managing compatible proxy connections.
+
+It is not a VPN service and does not provide proxy servers of its own.
+
+Users must supply their own authorized proxy endpoints.
+
+**Velvet Proxy | Simple proxy management, built for everyday use.**
