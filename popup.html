@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="only light">
+  <title>Velvet Proxy</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-logo" aria-hidden="true">
+          <svg class="brand-symbol" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="voltShield" x1="3" y1="2" x2="28" y2="30" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#ff496b"/><stop offset=".58" stop-color="#e31141"/><stop offset="1" stop-color="#9b082d"/>
+              </linearGradient>
+              <path id="voltV" d="M6.5 8.5h4.8l4.5 11 3.1-6.5h-3l5.3-5h4.9l-4.3 5.4h3.1L16 24.8h-2.1Z"/>
+              <clipPath id="voltClip"><use href="#voltV"/></clipPath>
+            </defs>
+            <path d="M16 1.5 29 6v9.2c0 6.5-5.4 11.7-13 15.3C8.4 26.9 3 21.7 3 15.2V6Z" fill="url(#voltShield)" stroke="#ff9db2" stroke-width=".9"/>
+            <use href="#voltV" fill="#fff8fa"/>
+            <g clip-path="url(#voltClip)">
+              <path class="brand-shine" d="M-12 31 0 1h8L-4 31Z" fill="#ff5a8e"/>
+            </g>
+          </svg>
+        </span>
+        <div><strong>Velvet <span>Proxy</span></strong><small>PERSONAL PROXY WORKSPACE</small></div>
+      </div>
+      <span class="app-version">v1.3.3</span>
+    </header>
+
+    <section class="hero" aria-label="Current connection">
+      <div class="hero-art" aria-hidden="true">
+        <svg class="globe-art" viewBox="0 0 180 180" aria-hidden="true">
+          <defs>
+            <pattern id="globeDots" width="4" height="4" patternUnits="userSpaceOnUse">
+              <circle cx="1.5" cy="1.5" r=".95" fill="#ec173d"/>
+            </pattern>
+            <radialGradient id="globeFade" cx=".35" cy=".3" r=".66">
+              <stop stop-color="white"/><stop offset=".72" stop-color="white" stop-opacity=".75"/><stop offset="1" stop-color="white" stop-opacity="0"/>
+            </radialGradient>
+            <mask id="globeMask"><circle cx="90" cy="90" r="86" fill="url(#globeFade)"/></mask>
+          </defs>
+          <g mask="url(#globeMask)">
+            <circle cx="90" cy="90" r="86" fill="#ffedf1" fill-opacity=".5" stroke="#ec173d" stroke-opacity=".25"/>
+            <g fill="url(#globeDots)">
+              <path d="M19 46 40 24 62 20 75 26 67 37 54 38 52 49 42 58 38 74 49 84 46 91 34 84 25 71 15 67ZM58 84l21 8 5 12 17 7-4 17-14 14-5 18-9-4-4-21-8-12 3-15-9-13ZM82 13l27-4 11 11-12 12-18 3-10-11ZM103 65l12-19 16-5 10-15 22 12 14 37-9 11-12-9-8 6-9-14-14-5-10 11-12-4Zm8 14 20 1 16 15-8 14-6 25-13 5-9-18-7-22Zm39 56 14-10 13 7-3 16-17 3-9-8Z"/>
+            </g>
+            <g fill="none" stroke="#e83453" stroke-opacity=".19">
+              <ellipse cx="90" cy="90" rx="52" ry="86"/><ellipse cx="90" cy="90" rx="22" ry="86"/>
+              <path d="M10 62q80 24 160 0M4 92q86 25 172 0M15 124q75 24 150 0"/>
+            </g>
+          </g>
+        </svg>
+      </div>
+      <div class="hero-top"><span class="eyebrow">CURRENT CONNECTION</span><span id="statusChip" class="status-chip"><i></i> System</span></div>
+      <div class="hero-middle">
+        <div id="currentIcon" class="endpoint-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4.2" ry="9"/><path d="M3 12h18"/></svg></div>
+        <div class="hero-detail"><h1 id="currentName">System connection</h1><p id="currentEndpoint">Choose a proxy to get started</p></div>
+        <button id="powerToggle" class="power-toggle" type="button" role="switch" aria-checked="false" aria-label="Enable selected proxy" disabled>
+          <span class="power-track"><span class="power-knob"></span></span>
+        </button>
+      </div>
+      <div id="activeGeo" class="active-geo" hidden aria-live="polite"></div>
+      <div id="testResult" class="test-result" hidden aria-live="polite"></div>
+      <div class="hero-bottom">
+        <span class="subtle" id="routingCaption"><span class="mini-dot"></span> Chrome browser traffic</span>
+        <button id="testBtn" type="button" class="test-btn" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M20 4v6h-6M4 20v-6h6M5 9a8 8 0 0 1 13-3l2 4M4 14l2 4a8 8 0 0 0 13-3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="button-label">Check IP</span>
+        </button>
+      </div>
+    </section>
+
+    <div id="controlWarning" class="control-warning" hidden role="alert"></div>
+    <section class="library" aria-label="Saved proxies">
+      <div class="section-heading"><div><h2>My Proxies <span class="title-decoration" aria-hidden="true"></span></h2><p id="profileCount">Your private proxy library</p></div><button id="addBtn" class="primary-btn" type="button"><svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Add Proxy</span></button></div>
+      <div class="tools-row">
+        <label class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4" stroke-linecap="round"/></svg>
+          <input id="searchInput" type="search" autocomplete="off" placeholder="Search your proxies..." aria-label="Search saved proxies">
+        </label>
+        <button id="importBtn" class="icon-btn tool-btn" title="Import proxies" aria-label="Import proxies" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M4 17v3h16v-3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button id="exportBtn" class="icon-btn tool-btn" title="Export profiles" aria-label="Export profiles" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M12 15V3m-4 4 4-4 4 4M4 15v5h16v-5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+      <div id="proxyList" class="proxy-list" tabindex="0" role="region" aria-label="Proxy list" aria-live="polite"></div>
+      <div id="emptyState" class="empty-state" hidden><span class="empty-icon">◈</span><strong>No proxies yet</strong><p>Save a proxy or import a list to start switching in one click.</p><button id="emptyAddBtn" class="text-btn" type="button">Add your first proxy →</button></div>
+      <div id="searchEmpty" class="empty-state" hidden><span class="empty-icon">⌕</span><strong>No matching proxies</strong><p>Try a different name, host, or protocol.</p></div>
+    </section>
+
+    <footer class="footer"><span><span class="privacy-dot"></span> Local-only storage. No tracking.</span><button id="helpBtn" type="button">Help & limits <span aria-hidden="true">↗</span></button></footer>
+  </main>
+
+  <dialog id="editorDialog" class="dialog">
+    <form id="profileForm" class="dialog-inner" novalidate>
+      <div class="dialog-heading"><div><span class="eyebrow">PROXY PROFILE</span><h2 id="editorTitle">Add a proxy</h2></div><button type="button" class="close-btn" data-close="editorDialog" aria-label="Close"><svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+      <input id="profileId" type="hidden">
+      <label class="field"><span>Profile name <em>Optional</em></span><input id="profileName" maxlength="72" placeholder="e.g. US Residential" autocomplete="off"></label>
+      <label class="field"><span>Protocol</span><select id="profileScheme"><option value="http">HTTP Proxy</option><option value="https">HTTPS Proxy (TLS)</option><option value="socks5">SOCKS5</option><option value="socks4">SOCKS4</option></select></label>
+      <div class="field-grid">
+        <label class="field"><span>Host / IP <b>*</b></span><input id="profileHost" required spellcheck="false" autocapitalize="none" autocorrect="off" placeholder="proxy.example.com" autocomplete="off"></label>
+        <label class="field"><span>Port <b>*</b></span><input id="profilePort" required inputmode="numeric" maxlength="5" placeholder="8080" autocomplete="off"></label>
+      </div>
+      <div id="credentialsFields" class="credentials-fields">
+        <label class="field"><span>Username <em>Optional</em></span><input id="profileUsername" maxlength="512" autocomplete="off" placeholder="proxy_user"></label>
+        <label class="field"><span>Password <em>Optional</em></span><div class="password-wrap"><input id="profilePassword" maxlength="512" type="password" autocomplete="new-password" placeholder="••••••••"><button id="passwordReveal" type="button" aria-label="Show password">Show</button></div></label>
+      </div>
+      <div id="socksHint" class="inline-hint" hidden>Chrome does not support username/password authentication for SOCKS proxies. IP-allowlisted SOCKS proxies work.</div>
+      <label class="field"><span>Bypass domains <em>Optional</em></span><input id="profileBypass" maxlength="2048" spellcheck="false" placeholder="&lt;local&gt;, *.mycompany.com"><small>Comma separated. These destinations will not use the proxy.</small></label>
+      <div class="verification-tip">Every new or edited proxy is tested before saving. Only verified LIVE connections are accepted.</div>
+      <div id="formError" class="form-error" hidden role="alert"></div>
+      <div class="dialog-actions"><button class="secondary-btn" data-close="editorDialog" type="button">Cancel</button><button id="saveProfileBtn" class="primary-btn" type="submit"><svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg><span class="button-label">Verify & save</span></button></div>
+    </form>
+  </dialog>
+
+  <dialog id="importDialog" class="dialog">
+    <div class="dialog-inner">
+      <div class="dialog-heading"><div><span class="eyebrow">BULK MANAGEMENT</span><h2>Import proxies</h2></div><button type="button" class="close-btn" data-close="importDialog" aria-label="Close"><svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+      <label class="field"><span>Default protocol for lines without a scheme</span><select id="importScheme"><option value="http">HTTP</option><option value="https">HTTP with TLS (HTTPS)</option><option value="socks5">SOCKS5</option><option value="socks4">SOCKS4</option></select></label>
+      <label class="field"><span>Proxy list</span><textarea id="importText" rows="7" placeholder="host:port&#10;host:port:user:pass&#10;user:pass@host:port&#10;http://user:pass@host:port&#10;socks5://host:port" spellcheck="false"></textarea></label>
+      <div class="import-file">
+        <label class="import-file-picker">
+          <span>Choose TXT or JSON file</span>
+          <input id="importFile" type="file">
+        </label>
+        <a id="openImportTab" href="popup.html?view=import" target="_blank" rel="noopener">Open import in a tab</a>
+      </div>
+      <div class="verification-tip">Checks run one at a time to avoid mixing connections. Chrome traffic temporarily uses each candidate proxy; your original connection is restored after each check. Only LIVE proxies can be imported.</div>
+      <div id="importError" class="form-error" hidden role="alert"></div>
+      <section id="importProgress" class="import-progress" hidden aria-live="polite">
+        <div class="progress-top"><strong id="importProgressLabel">Ready to check</strong><span id="importProgressCounter">0 / 0</span></div>
+        <div class="progress-track"><div id="importProgressBar"></div></div>
+        <div id="importStats" class="import-stats"></div>
+        <div id="importResults" class="import-results"></div>
+      </section>
+      <div class="dialog-actions import-actions"><button id="stopImportBtn" class="secondary-btn" type="button" hidden>Stop after current</button><button class="secondary-btn" type="button" data-close="importDialog">Close</button><button id="runImportBtn" class="secondary-btn" type="button">Check proxies</button><button id="addLiveBtn" class="primary-btn" type="button" disabled><svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="button-label">Add LIVE (0)</span></button></div>
+    </div>
+  </dialog>
+
+  <dialog id="deleteDialog" class="dialog confirm-dialog" aria-labelledby="deleteHeading">
+    <div class="dialog-inner">
+      <div class="confirm-icon" aria-hidden="true"><svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></div>
+      <h2 id="deleteHeading">Delete proxy?</h2>
+      <p class="dialog-description">Remove <strong id="deleteProxyName"></strong> from your saved profiles? This cannot be undone.</p>
+      <div class="dialog-actions"><button type="button" class="secondary-btn" data-close="deleteDialog">Keep proxy</button><button type="button" id="confirmDeleteBtn" class="danger-btn">Delete proxy</button></div>
+    </div>
+  </dialog>
+
+  <dialog id="exportDialog" class="dialog">
+    <div class="dialog-inner"><div class="dialog-heading"><div><span class="eyebrow">BACKUP & MOVE</span><h2>Export profiles</h2></div><button type="button" class="close-btn" data-close="exportDialog" aria-label="Close"><svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+    <p class="dialog-description">Download your saved profiles as a JSON file. Passwords are excluded unless you opt in.</p>
+    <label class="check-line"><input id="exportPasswords" type="checkbox"><span><strong>Include passwords</strong><small>Only use this for a private backup. The exported file is not encrypted.</small></span></label>
+    <div class="dialog-actions"><button class="secondary-btn" type="button" data-close="exportDialog">Cancel</button><button id="runExportBtn" class="primary-btn" type="button">Download JSON</button></div></div>
+  </dialog>
+
+  <dialog id="helpDialog" class="dialog">
+    <div class="dialog-inner"><div class="dialog-heading"><div><span class="eyebrow">ABOUT VELVET PROXY</span><h2>Help & limitations</h2></div><button type="button" class="close-btn" data-close="helpDialog" aria-label="Close"><svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+      <div class="help-text"><p><strong>HTTP / HTTPS</strong> can use username and password. HTTPS means an encrypted connection to the proxy itself, not merely access to an HTTPS website.</p><p><strong>SOCKS4 / SOCKS5</strong> work only without username/password in Chrome. Ask your provider for IP authentication or an HTTP endpoint.</p><p><strong>Live verification:</strong> checks <code>api.ipify.org</code> through the candidate proxy and compares the response with your direct-connection public IP. Same-IP or unavailable baseline shows UNVERIFIED. A failure can also mean the test service is blocked, not necessarily a permanently dead proxy.</p><p><strong>Location:</strong> <code>ipwho.is</code> provides approximate country and city from the observed IP. Location may be missing or inaccurate. Verified flags use the <code>flag.img</code> SVG provided by ipwho.is (cdn.ipwhois.io), with a country emoji fallback. The toolbar icon is red when a proxy is active and slate when disabled.</p><p><strong>Turning off</strong> removes this extension's proxy override, returning control to Chrome's other proxy settings. Another extension, VPN, enterprise policy, or browser flag may override this extension.</p><p><strong>Privacy:</strong> Profiles and passwords are stored locally in Chrome's extension storage, not encrypted by this extension. There are no analytics or cloud accounts. Verification requests contact ipify and ipwho.is only when you explicitly add, import, connect, or test a proxy. Chrome browser proxy settings do not guarantee coverage of WebRTC or other applications.</p></div>
+      <div class="dialog-actions"><button class="primary-btn" data-close="helpDialog" type="button">Got it</button></div>
+    </div>
+  </dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="parser.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

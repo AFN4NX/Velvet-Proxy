@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "Velvet Proxy",
+  "version": "1.3.3",
+  "description": "Premium personal proxy manager with resilient service worker startup, live verification and animated UI.",
+  "minimum_chrome_version": "116",
+  "permissions": [
+    "proxy",
+    "storage",
+    "webRequest",
+    "webRequestAuthProvider"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Velvet Proxy",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16-off.png",
+      "32": "icons/icon32-off.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
